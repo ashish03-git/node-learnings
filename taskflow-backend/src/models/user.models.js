@@ -41,6 +41,9 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    accessToken: {
+      type: String,
+    },
     refreshToken: {
       type: String,
     },
@@ -64,9 +67,8 @@ const userSchema = new Schema(
 
 // hooks
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 // predefined methods attached to schema
@@ -84,7 +86,7 @@ userSchema.methods.generateAccessToken = function () {
     },
     process.env.ACCESS_TOKEN_SCECRET,
     {
-      expiresIn: process.env.REFRESH_TOKEN_SCECRET,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     }
   );
 };
